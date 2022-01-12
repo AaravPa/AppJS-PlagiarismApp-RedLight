@@ -1,0 +1,205 @@
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+
+export default class App extends React.Component {
+  constructor() {
+    super();
+    this.state={
+      user_sentence:'',
+      result:70,
+      positiveResult:30,
+      isRedLightVisible:false,
+      isYellowLightVisible:false,
+      isGreenLightVisible:false,
+      isInputAndButtonVisible:true,
+      isResultVisible:false,
+      isResetVisible:false,
+      isPositiveResultVisible:false,
+    }
+  }
+  plagiarism = async() => {
+    this.setState({isRedLightVisible:true, isResultVisible:true, isPositiveResultVisible:true,isResetVisible:true})
+    var data = {user_sentence:this.state.user_sentence}
+    let response = await fetch("http://127.0.0.1:5000", { 
+        method:'POST',
+        headers: {
+          'Access-Control-Allow-Origin': '*', 
+          'Access-Control-Allow-Methods': '*',
+          'Access-Control-Allow-Headers': '*',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },  
+        body:JSON.stringify(data)
+         
+      })
+
+      var responseJson = await response.json();
+      console.log(responseJson);
+      var stringifiedResponse = JSON.stringify(responseJson)
+      //var array = JSON.parse(stringifiedResponse)
+      //var text1 = array.data.id;
+      console.log(stringifiedResponse)
+      //this.setState({textHolder:text1})
+      console.log(this.state.user_sentence)
+      var rounded_stringifiedResponse=Math.round(stringifiedResponse * 10) / 10
+      this.setState({result:rounded_stringifiedResponse})
+    }
+    
+    // .then(response.json()).then((responseJson) => {
+    //     data = responseJson;
+    //     console.log(data)
+    // })
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <View style={styles.view}>
+          <Text style={styles.titleText}>Plagiarism App</Text>
+        </View>
+        {this.state.isInputAndButtonVisible &&
+        <TextInput  placeholder={"type/paste text here"} multiline={true} style={styles.input} onChangeText= {(text) => {
+        this.setState({ user_sentence: text});
+        }}>
+        </TextInput>
+        }
+        {this.state.isInputAndButtonVisible &&
+        <TouchableOpacity style={styles.button}  
+        onPress={()=> {
+          this.plagiarism()
+          this.setState({isInputAndButtonVisible:false})
+        }}>
+          <Text style={styles.buttonText}> Check
+          </Text>
+        </TouchableOpacity>
+        }
+        {this.state.isResetVisible &&
+        <TouchableOpacity style={styles.resetButton}  
+        onPress={()=> {
+          this.setState({isRedLightVisible:false, isGreenLightVisible:false, isYellowLightVisible:false, isInputAndButtonVisible:true, isResultVisible:false, isResetVisible:false})
+        }}>
+          <Text style={styles.buttonText}> Reset
+          </Text>
+        </TouchableOpacity>
+        } 
+        {this.state.isPositiveResultVisible &&
+        <Text style={{width:70, height:70, borderRadius:70/2, borderWidth:3, borderColor:this.state.isRedLightVisible ? "#39FF14" : "red", paddingTop:15,fontSize:30,textAlign:"center",marginTop:-224,marginBottom:-210,marginLeft:80,color: this.state.isRedLightVisible ? "#39FF14" : "red"}}>{this.state.positiveResult}</Text>        
+        } 
+        {this.state.isResultVisible &&
+        <Text style={{width:70, height:70, borderRadius:70/2, borderWidth:3, borderColor:this.state.isRedLightVisible ? "red" : "#39FF14", paddingTop:15,fontSize:30,textAlign:"center",marginTop:70,marginBottom:-70,marginLeft:80,color: this.state.isRedLightVisible ? "red" : "#39FF14"}}>{this.state.result}</Text>        
+        } 
+        {this.state.isRedLightVisible &&
+          <Image style={styles.image} source={require('./redLight.png')}/>
+        }
+        {this.state.isYellowLightVisible &&
+          <Image style={styles.image} source={require('./yellowLight.png')}/>
+        }
+        {this.state.isGreenLightVisible &&  
+          <Image style={styles.image} source={require('./greenLight.png')}/>
+        }
+
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    fontSize:100,
+    textAlign:"center",
+    marginTop:200,
+    marginBottom:5,
+    marginLeft:0,
+    color:"#39FF14"
+  },
+  titleText: {
+    fontSize:30,
+    textAlign:"center",
+    color:"white",
+    fontWeight:"bold",
+    alignSelf:"center",
+    alignItems:"center"
+  },
+  input: { 
+    height: 300,
+    width:390,
+    margin: 8,
+    borderWidth: 2,
+    borderColor:"#39FF14",
+    padding: 10,
+    color:"#39FF14",
+    fontWeight:"bold",
+    marginLeft:0, 
+    marginTop:140,
+    marginBottom:-440,
+    backgroundColor:'white',
+    borderRightColor:"white",
+    borderLeftColor:"white"
+  },
+  button: {
+    height: 40,
+    width:200,
+    borderWidth: 2,
+    borderRadius:10,
+    borderColor:"#39FF14",
+    padding: 10,
+    marginLeft:-8,
+    marginTop:460,
+    marginBottom:-290,
+    backgroundColor:'#39FF14'
+  },
+  view: {
+    borderWidth: 2, 
+    borderRadius: 10,
+    borderColor: '#39FF14',
+    width: 500,
+    height:150,
+    paddingTop:90,
+    paddingBottom:-50,
+    backgroundColor: '#39FF14',
+    marginLeft:0,
+    marginTop:-660,
+    marginBottom:-120,
+  },
+  buttonText:{
+    textAlign:"center",
+    color:"white",
+    marginLeft:-5,
+    marginTop:-2,
+    fontWeight:"bold"
+  },
+  image:{
+    width:50,
+    height:150,
+    alignItems:"center",
+    marginLeft:-100,
+    marginTop:0,
+    marginBottom:-100,
+    borderColor:"grey",
+    borderWidth:2,
+    borderRadius:10
+  },
+  resetButton:{
+    height: 40,
+    width:200,
+    borderWidth: 2,
+    borderRadius:10,
+    borderColor:"#39FF14",
+    padding: 10,
+    marginLeft:-8,
+    marginTop:350,
+    marginBottom:100,
+    backgroundColor:'#39FF14'
+  }
+}); 
+
+//#7AD7F0
+//marginLeft:-1655,
+//marginTop:-790,
+//marginBottom:-100
